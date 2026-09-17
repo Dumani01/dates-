@@ -1185,11 +1185,11 @@ input[type="date"]:focus {
   }
 
   .btn-yes {
-    left: 28%;
+    left: 20% !important;
   }
 
   .btn-no {
-    left: 72%;
+    left: 80% !important;
   }
 
   .date-panel,
