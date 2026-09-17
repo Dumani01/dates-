@@ -1120,11 +1120,30 @@ input[type="date"]:focus {
 }
 
 @media (max-width: 520px) {
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    align-items: stretch;
+  }
+
   .app-shell {
     padding: 0;
+    align-items: stretch;
+  }
+
+  .stage.active {
+    align-items: flex-start;
+    min-height: 100dvh;
+    padding: 74px 10px 24px;
   }
 
   .panel {
+    width: 100%;
+    padding: 22px 14px 26px;
     border-radius: 24px;
   }
 
@@ -1136,12 +1155,128 @@ input[type="date"]:focus {
     grid-template-columns: 1fr;
   }
 
+  .language-switcher {
+    top: 10px;
+    right: 10px;
+  }
+
+  .hero-panel {
+    min-height: calc(100dvh - 98px);
+    padding: 24px 8px 28px;
+    gap: 18px;
+  }
+
+  .hero {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: clamp(1.85rem, 10vw, 2.65rem);
+  }
+
+  .hero p,
+  .section-copy {
+    font-size: 0.95rem;
+  }
+
+  .choice-zone {
+    min-height: 76px;
+    margin-top: 12px;
+  }
+
   .btn-yes {
     left: 28%;
   }
 
   .btn-no {
     left: 72%;
+  }
+
+  .date-panel,
+  .food-panel,
+  .final-panel {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .glass-calendar {
+    padding: 14px 10px;
+    border-radius: 20px;
+  }
+
+  .glass-calendar__topbar,
+  .glass-calendar__heading,
+  .glass-calendar__footer {
+    gap: 8px;
+  }
+
+  .glass-calendar__heading {
+    flex-wrap: wrap;
+  }
+
+  .glass-calendar__month {
+    font-size: 0.9rem;
+  }
+
+  .glass-calendar__day button {
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .time-picker-control {
+    padding: 12px 8px;
+    border-radius: 16px;
+  }
+
+  .time-picker-fields {
+    gap: 5px;
+  }
+
+  .time-select {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  .time-select-trigger {
+    min-height: 44px;
+    padding: 0 7px;
+    font-size: 14px;
+  }
+
+  .time-select-chevron {
+    font-size: 0.95rem;
+  }
+
+  .time-select-menu {
+    width: min(128px, 42vw);
+    max-height: 190px;
+  }
+
+  .time-picker-now {
+    width: 100%;
+  }
+
+  .actions,
+  .date-panel .actions,
+  .food-panel .actions {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .actions .depth-button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .actions .depth-button__button,
+  .actions .depth-button__front {
+    width: 100%;
+  }
+
+  .actions .depth-button__front {
+    padding-left: 12px;
+    padding-right: 12px;
+    white-space: nowrap;
   }
 
   .summary-row {
