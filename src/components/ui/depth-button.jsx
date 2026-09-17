@@ -65,7 +65,7 @@ const StyledWrapper = styled.span`
     padding: 12px 27px;
     color: #fff;
     background: linear-gradient(135deg, #d9577c, #8a2d47);
-    font: 700 1rem Georgia, 'Times New Roman', serif;
+    font: 700 1rem 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
     transform: translateY(-4px);
     transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
   }
@@ -87,14 +87,9 @@ const StyledWrapper = styled.span`
   .depth-button__button:active .depth-button__shadow { transform: translateY(1px); transition: transform 34ms; }
   .depth-button__button:focus:not(:focus-visible) { outline: none; }
 
-  &.btn-yes, &.btn-no { position: absolute; min-height: 50px; padding: 0; border: 0; background: transparent; }
-  &.btn-yes { left: 26%; top: 50%; transform: translate(-50%, -50%); }
-  &.btn-no { left: 72%; top: 50%; transform: translate(-50%, -50%); transition: left 0.17s ease, top 0.17s ease, transform 0.17s ease; }
+  &.btn-yes, &.btn-no { position: absolute; min-height: 50px; padding: 0; border: 0; background: transparent; z-index: 11; }
+  &.btn-yes { left: 37%; top: 50%; transform: translate(-50%, -50%); }
+  &.btn-no { left: 63%; top: 50%; transform: translate(-50%, -50%); transition: left 0.035s linear, top 0.035s linear, transform 0.035s linear; will-change: transform, left, top; }
   &.btn-yes:hover { transform: translate(-50%, -54%); }
   &.btn-no:hover { transform: translate(-50%, -54%); }
-
-  @media (max-width: 520px) {
-    &.btn-yes { left: 28%; }
-    &.btn-no { left: 72%; }
-  }
 `;

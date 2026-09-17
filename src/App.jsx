@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { GlassCalendar } from './components/ui/glass-calendar';
 import { NeonCheckbox } from './components/ui/neon-checkbox';
 import { DepthButton } from './components/ui/depth-button';
+import { TimePicker } from './components/ui/time-picker';
 
 const foodOptions = [
   'Sushi', 'Pizza', 'Hamburguesas', 'Pasta italiana',
@@ -18,11 +19,13 @@ export default function App() {
   const { t, i18n } = useTranslation();
   const [stage, setStage] = useState(1);
   const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [selectedFood, setSelectedFood] = useState('');
   const [dodgeCount, setDodgeCount] = useState(0);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [foodError, setFoodError] = useState('');
+  const noAnimationClass = dodgeCount > 0 ? `dodge-animation-${dodgeCount % 18}` : '';
 
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);
@@ -49,33 +52,39 @@ export default function App() {
   const moveNoButton = (pointerX, pointerY) => {
     const zone = document.getElementById('choice-zone');
     const noButton = document.getElementById('no-btn');
+    const yesButton = document.getElementById('yes-btn');
 
     if (!zone || !noButton) return;
 
-    const zoneRect = zone.getBoundingClientRect();
     const buttonRect = noButton.getBoundingClientRect();
+    const yesRect = yesButton?.getBoundingClientRect();
     const padding = 12;
-    const maxX = Math.max(padding, zoneRect.width - buttonRect.width - padding);
-    const maxY = Math.max(padding, zoneRect.height - buttonRect.height - padding);
+    const maxX = Math.max(padding, window.innerWidth - buttonRect.width - padding);
+    const maxY = Math.max(padding, window.innerHeight - buttonRect.height - padding);
+    const viewportLeft = 0;
+    const viewportTop = 0;
 
     let x = Math.random() * maxX;
     let y = Math.random() * maxY;
 
-    if (Number.isFinite(pointerX) && Number.isFinite(pointerY)) {
-      for (let attempt = 0; attempt < 10; attempt++) {
-        const centerX = zoneRect.left + x + buttonRect.width / 2;
-        const centerY = zoneRect.top + y + buttonRect.height / 2;
-        const distance = Math.hypot(centerX - pointerX, centerY - pointerY);
+    for (let attempt = 0; attempt < 90; attempt++) {
+      const centerX = viewportLeft + x + buttonRect.width / 2;
+      const centerY = viewportTop + y + buttonRect.height / 2;
+      const farFromPointer = !Number.isFinite(pointerX) || !Number.isFinite(pointerY)
+        || Math.hypot(centerX - pointerX, centerY - pointerY) > 240;
+      const farFromYes = !yesRect
+        || centerX + buttonRect.width / 2 < yesRect.left - 28
+        || centerX - buttonRect.width / 2 > yesRect.right + 28
+        || centerY + buttonRect.height / 2 < yesRect.top - 28
+        || centerY - buttonRect.height / 2 > yesRect.bottom + 28;
 
-        if (distance > 105) break;
+      if (farFromPointer && farFromYes) break;
 
-        x = Math.random() * maxX;
-        y = Math.random() * maxY;
-      }
+      x = Math.random() * maxX;
+      y = Math.random() * maxY;
     }
 
-    // El contenedor del botón es el elemento posicionado dentro de choice-zone.
-    // Dejamos siempre un margen para que el botón nunca desaparezca del área.
+    noButton.style.position = 'fixed';
     noButton.style.left = `${x + buttonRect.width / 2}px`;
     noButton.style.top = `${y + buttonRect.height / 2}px`;
     setDodgeCount((count) => {
@@ -94,7 +103,7 @@ export default function App() {
     const centerY = rect.top + rect.height / 2;
     const distance = Math.hypot(event.clientX - centerX, event.clientY - centerY);
 
-    if (distance < 95) moveNoButton(event.clientX, event.clientY);
+    if (distance < 220) moveNoButton(event.clientX, event.clientY);
   };
 
   const handleNoPointerDown = (event) => {
@@ -117,6 +126,11 @@ export default function App() {
 
     if (date < minDate) {
       setError(t('futureDate'));
+      return;
+    }
+
+    if (!time) {
+      setError(t('selectTime'));
       return;
     }
 
@@ -145,6 +159,7 @@ export default function App() {
 
   const handleRestart = () => {
     setDate('');
+    setTime('');
     setSelectedFood('');
     setStage(1);
     setMessage('');
@@ -154,8 +169,9 @@ export default function App() {
 
     const noButton = document.getElementById('no-btn');
     if (noButton) {
-      noButton.style.left = '72%';
-      noButton.style.top = '50%';
+      noButton.style.position = '';
+      noButton.style.left = '';
+      noButton.style.top = '';
     }
   };
 
@@ -166,6 +182,8 @@ export default function App() {
         year: 'numeric',
       })
     : '';
+
+  const formattedTime = time || '';
 
   const scheduledCard = (
     <StyledWrapper>
@@ -194,7 +212,7 @@ export default function App() {
         <button type="button" className={i18n.language === 'en' ? 'is-active' : ''} onClick={() => changeLanguage('en')}>EN</button>
       </div>
       {stage === 1 && (
-        <section className="stage active">
+        <section className="stage active" onPointerMove={handleNoPointerMove}>
           <div className="panel hero-panel">
             <div className="hero">
               <div className="heart" aria-hidden="true">♡</div>
@@ -204,15 +222,20 @@ export default function App() {
               </p>
             </div>
 
-            <div className="choice-zone" id="choice-zone" onPointerMove={handleNoPointerMove}>
+            <div className="choice-zone" id="choice-zone">
               <DepthButton type="button" className="btn btn-yes" id="yes-btn" onClick={handleYes}>
                 {t('yes')}
               </DepthButton>
 
               <DepthButton
                 type="button"
-                className="btn btn-no"
+                className={`btn btn-no ${noAnimationClass}`}
                 id="no-btn"
+                onPointerEnter={(event) => {
+                  if (event.pointerType !== 'touch') {
+                    moveNoButton(event.clientX, event.clientY);
+                  }
+                }}
                 onPointerDown={handleNoPointerDown}
                 onClick={(event) => {
                   event.preventDefault();
@@ -243,7 +266,22 @@ export default function App() {
                 onDateSelect={handleCalendarDateSelect}
               />
 
-              <div className="error" aria-live="polite">{error}</div>
+              <div className="time-picker">
+                <TimePicker
+                  value={time}
+                  onChange={(value) => {
+                    setTime(value);
+                    setError('');
+                  }}
+                  error={Boolean(error)}
+                  currentTimeLabel={t('currentTime')}
+                />
+              </div>
+
+              <div className={`error ${error ? 'error-visible' : ''}`} role="alert" aria-live="polite">
+                {error && <span className="error-icon" aria-hidden="true">!</span>}
+                {error}
+              </div>
 
               <div className="actions">
                 <DepthButton type="button" className="btn btn-secondary" onClick={() => setStage(1)}>
@@ -311,7 +349,7 @@ export default function App() {
               <p className="section-copy">{t('successCopy')}</p>
 
               <div className="final-details" aria-label={t('details')}>
-                <p><span>{t('date')}</span><strong>{formattedDate}</strong></p>
+                <p><span>{t('date')}</span><strong>{formattedDate} · {formattedTime}</strong></p>
                 <p><span>{t('dinner')}</span><strong>{foodLabel(selectedFood)}</strong></p>
               </div>
 
@@ -320,7 +358,7 @@ export default function App() {
               <div className="summary-box">
                 <div className="summary-row">
                   <span>✦ {t('date')}</span>
-                  <strong>{formattedDate}</strong>
+                  <strong>{formattedDate} · {formattedTime}</strong>
                 </div>
 
                 <div className="summary-row">
